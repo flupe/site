@@ -15,6 +15,7 @@ executable site
   build-depends:       base >=4.12 && <4.13
                      , filepath
                      , achille
+                     , data-default
                      , blaze-html
                      , blaze-markup
                      , pandoc

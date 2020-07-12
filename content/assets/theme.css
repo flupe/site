@@ -77,6 +77,15 @@ hr {
   margin: 2.5em 0;
 }
 
+main > ul { list-style: none }
+main > ul li > span {
+  font: 13px monospace;
+  margin-right: 1em;
+  padding: .1em .5em;
+  border-radius: 3px;
+  background: #eaeaef;
+}
+
 details summary {
   cursor: pointer;
   padding: .5em 1em;
@@ -142,8 +151,8 @@ main ul { padding: 0 0 0 1.5em }
 main ul.projects {
   padding: 0;
   margin: 2.5em 0 0;
-background: #fafafb;
-list-style: none;
+  background: #fafafb;
+  list-style: none;
   border-radius: 2px;
 }
 
@@ -246,6 +255,23 @@ pre.sourceCode > code {
 figure {
   margin: 2em 0;
   text-align: center;
+}
+
+ul.pages {
+  padding: 0;
+  margin: 2em 0 2.5em;
+  list-style:none;
+  border-radius: 3px;
+  overflow: hidden;
+}
+ul.pages li a {
+  display: block;
+  line-height: 2.4em;
+  padding: 0 1em;
+  background: #eceff4;
+}
+ul.pages li a:hover {
+  background: #f2f4f7;
 }
 
 figure img {
