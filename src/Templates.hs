@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings        #-}
-{-# LANGUAGE BlockArguments           #-}
 {-# LANGUAGE DuplicateRecordFields    #-}
 {-# LANGUAGE DisambiguateRecordFields #-}
 {-# LANGUAGE NamedFieldPuns #-}
@@ -7,18 +5,18 @@
 
 module Templates where
 
-import Data.String (fromString)
 import Control.Monad (forM_, when)
 
-import System.FilePath
 import Text.Blaze.Internal         as I
 import Text.Blaze.Html5            as H
 import Text.Blaze.Html5.Attributes as A
 import Data.Dates.Types (DateTime(..), months, capitalize)
+import Data.Time.Format (formatTime, defaultTimeLocale)
+import Data.Time.LocalTime (zonedTimeToUTC)
 
-import Achille
 import Types
-import qualified Types
+import Common
+import Config
 import qualified Data.Map.Strict as Map
 
 showDate :: DateTime -> String
@@ -47,7 +45,7 @@ renderIndex posts content =
 
 renderPost :: String -> FilePath -> Html -> Html
 renderPost title source content =
-    outerWith def {Types.title = title} do
+    outerWith def { Config.title = fromString title } do
         H.h1 $ fromString title
         toLink source "View source"
         content
@@ -63,7 +61,9 @@ renderVisual txt imgs =
 
 renderProject :: Project -> [(String, FilePath)] -> Html -> Html
 renderProject (project@Project{title,..}) children content =
-    outerWith def {Types.title = title} do
+    outerWith def { Config.title       = fromString title
+                  , Config.description = fromString subtitle
+                  } do
         H.header ! A.class_ "project" $ do
             H.div $ H.img ! A.src "logo.svg"
             H.div do
@@ -76,16 +76,34 @@ renderProject (project@Project{title,..}) children content =
                             $ fromString v
                     else fromString v
         when (length children > 0) $
-            H.ul ! A.class_ "pages" $ forM_ children \(t,l) ->
+            H.ol ! A.class_ "pages" $ forM_ children \(t,l) ->
                 H.li $ H.a ! A.href (fromString l) $ (fromString t)
         content
+
+renderReadings :: [Book] -> Html
+renderReadings books =
+    outerWith def { Config.title       = "readings"
+                  , Config.description = "books I've read"
+                  } do
+        H.table ! A.class_ "books" $
+            forM_ books \ Book {title,author,rating,completed} ->
+                H.tr do
+                    H.td $ toHtml title 
+                    H.td $ toHtml author
+                    H.td $ fromString $ case rating of
+                        Just r  -> replicate r '★'
+                        Nothing -> "·"
+                    H.td $ fromString $ case completed of
+                        Just d  -> formatTime defaultTimeLocale "%m/%0Y"
+                                   $ zonedTimeToUTC d
+                        Nothing -> "·"
 
 renderProjects :: Html -> [(Project, FilePath)] -> Html
 renderProjects txt paths =
     outer do
         txt
         H.ul ! A.class_ "projects" $ do
-            forM_ paths \(Project{title,..}, link) -> H.li $ H.a ! A.href (fromString link) $ do
+            forM_ paths \(Project {title,..}, link) -> H.li $ H.a ! A.href (fromString link) $ do
                 H.div $ H.img ! A.src (fromString $ link </> "logo.svg")
                 H.div do
                     H.h2 $ fromString title
@@ -111,18 +129,18 @@ outerWith SiteConfig{title,..} content = H.docTypeHtml do
 
         -- OpenGraph
         H.meta ! property "og:title"
-               ! A.content (fromString title)
+               ! A.content (textValue title)
 
         H.meta ! property "og:type"
-               ! A.content  "website"
+               ! A.content "website"
 
         H.meta ! property "og:image"
-               ! A.content (fromString image)
+               ! A.content (textValue image)
 
         H.meta ! property "og:description"
-               ! A.content (fromString description)
+               ! A.content (textValue description)
 
-        H.title (fromString title)
+        H.title $ toHtml title
 
     H.body do
         H.header ! A.id "hd" $ H.section do
@@ -130,6 +148,7 @@ outerWith SiteConfig{title,..} content = H.docTypeHtml do
             H.section $ H.nav do
                 H.a ! A.href "/projects.html" $ "Projects"
                 H.a ! A.href "/visual.html"   $ "Visual"
+                H.a ! A.href "/readings.html" $ "Readings"
                 H.a ! A.href "/quid.html"     $ "Quid"
 
         H.main content

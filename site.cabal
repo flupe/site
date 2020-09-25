@@ -4,7 +4,6 @@ version:             0.1.0.0
 author:              flupe
 maintainer:          lucas@escot.me
 build-type:          Simple
-optimization:        2
 
 executable site
   main-is:             Main.hs
@@ -12,6 +11,12 @@ executable site
   other-modules:       Templates
                      , Types
                      , Page
+                     , Feed
+                     , Posts
+                     , Projects
+                     , Common
+                     , Config
+                     , Visual
   build-depends:       base >=4.12 && <4.13
                      , filepath
                      , achille
@@ -29,8 +34,16 @@ executable site
                      , binary
                      , containers
                      , dates
+                     , sort
+                     , feed
+                     , time
+                     , xml-types
+                     , binary-instances
+  extensions:          BlockArguments
+                     , TupleSections
+                     , OverloadedStrings
+                     , ScopedTypeVariables
   other-modules:       Templates
   ghc-options:       -threaded
-                     -Wunused-imports
                      -j8
   default-language:    Haskell2010

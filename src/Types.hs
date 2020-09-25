@@ -6,9 +6,13 @@ module Types where
 import GHC.Generics
 import Data.Aeson.Types (FromJSON)
 import Data.Binary (Binary, put, get)
-import Data.Default
+import Data.Time.LocalTime (ZonedTime)
+import Data.Binary.Instances.Time ()
+import Data.Text   (Text)
 import qualified Data.Map.Strict as Map
 
+
+-- | Full project description
 data Project = Project 
     { title    :: String
     , subtitle :: String
@@ -17,28 +21,29 @@ data Project = Project
     , gallery  :: Maybe Bool
     } deriving (Generic, Eq, Show)
 
+
 data TitledPage = TitledPage
     { title       :: String
     , description :: Maybe String
     } deriving (Generic, Eq, Show)
 
+
+-- | Book description for the readings page
+data Book = Book
+    { title     :: Text
+    , author    :: Text
+    , rating    :: Maybe Int
+    , completed :: Maybe ZonedTime
+    } deriving (Generic, Show)
+
 instance FromJSON Project
 instance FromJSON TitledPage
+instance FromJSON Book
 
 instance Binary Project where
     put (Project t s y l g) = put t >> put s >> put y >> put l >> put g
     get = Project <$> get <*> get <*> get <*> get <*> get
 
-
-data SiteConfig = SiteConfig
-    { title       :: String
-    , description :: String
-    , image       :: String
-    }
-
-instance Default SiteConfig where
-    def = SiteConfig
-        { title       = "sbbls"
-        , description = "my personal web space, for your enjoyment"
-        , image       = "https://acatalepsie.fr/assets/card.png"
-        }
+instance Binary Book where
+    put (Book t a r c) = put t >> put a >> put r >> put c
+    get = Book <$> get <*> get <*> get <*> get

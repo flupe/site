@@ -66,7 +66,8 @@ a.footnote-ref sup::after  { content: ']' }
 }
 
 a {
-  color: var(--red);
+  color: var(--blacker);
+  font-weight: 500;
   text-decoration: none
 }
 a:hover {text-decoration: underline}
@@ -77,8 +78,9 @@ hr {
   margin: 2.5em 0;
 }
 
-main > ul { list-style: none }
-main > ul li > span {
+#pidx { list-style: none }
+#pidx li {line-height: 1.6em}
+#pidx li > span {
   font: 13px monospace;
   margin-right: 1em;
   padding: .1em .5em;
@@ -151,21 +153,29 @@ main ul { padding: 0 0 0 1.5em }
 main ul.projects {
   padding: 0;
   margin: 2.5em 0 0;
-  background: #fafafb;
   list-style: none;
-  border-radius: 2px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-gap: 1em;
+}
+
+main ul.projects li {
+  background: #fafafb;
+  border-radius: 5px;
 }
 
 main ul.projects > li > a {
   display: flex;
   color: inherit;
-  padding: .5em 2em 1em;
+  padding: .5em 1em 1em;
   transition: .2s background
 }
 
+ul.projects li a p { font-weight: 400 }
+
 main ul.projects > li img {
   width: 40px;
-  margin: .5em 1.5em 0 0;
+  margin: .5em 1em 0 0;
 }
 
 header.project { display: flex }
@@ -182,11 +192,11 @@ header.project ul li {
   font-family: monospace;
   background: #eceff4;
   border-radius: 3px;
+  margin: 0 1em 0 0;
 }
-header.project ul li + li {margin: 0 0 0 1em;}
 
 main ul.projects > li a:hover { background: #f2f4f7; text-decoration: none }
-main ul.projects > li h2  { margin: 0; font-size: 1.4em; color: var(--black) }
+main ul.projects > li h2  { margin: 0; font-size: 1.3em; color: var(--black) }
 main ul.projects > li p   { margin: 0 }
 main ul.projects li ul  { padding: .5em 0 }
 main ul.projects li ul li {
@@ -207,8 +217,9 @@ main blockquote {
 }
 
 main pre { padding: 0 0 0 1em }
-main h2 { font-size: 1.8em; margin: 1em 0 .5em }
-main h3 { font-size: 1.5em; margin: 1em 0 .5em }
+main h2 { font-size: 1.6em; margin: 1em 0 .5em }
+main h1 + h2 {margin-top: 0}
+main h3 { font-size: 1.3em; margin: 1em 0 .5em }
 
 #citations {margin: 2em 0 0}
 dl {display:grid; gap: 1em; grid-template-columns: auto 1fr}
@@ -257,26 +268,39 @@ figure {
   text-align: center;
 }
 
-ul.pages {
-  padding: 0;
+ol.pages {
+  padding: .5em 1em .5em 3em;
   margin: 2em 0 2.5em;
-  list-style:none;
-  border-radius: 3px;
-  overflow: hidden;
 }
-ul.pages li a {
+ol.pages li::marker {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+ol.pages li a {
   display: block;
-  line-height: 2.4em;
+  line-height: 2em;
   padding: 0 1em;
-  background: #eceff4;
-}
-ul.pages li a:hover {
-  background: #f2f4f7;
 }
 
 figure img {
   max-width: 100%;
   vertical-align: top;
+}
+
+.admonition {
+  border-left: 3px solid var(--yellow);
+  box-sizing: border-box;
+  padding: 1px 1em;
+  background: #f8c32520;
+  border-radius: 3px;
+  font-weight: 300;
+  font-size: .9rem;
+  color: #67510f
+}
+
+.admonition p {
+  margin: .5em 0;
 }
 
 .al {color: #f00; font-weight: bold; }
@@ -305,3 +329,19 @@ figure img {
 .va {color:#19177c}
 .vs {color:#4070a0}
 .wa {color:#60a0b0; font-weight: bold; font-style: italic; }
+
+table.books {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+table.books tr td {
+  padding: .1em 1em
+}
+table.books tr td:first-child {
+  font-style: italic;
+  text-align: right;
+  color: var(--blacker);
+  font-weight: 500;
+}
+table.books tr td:nth-child(3),
+table.books tr td:last-child  {text-align: center;color: var(--yellow)}
