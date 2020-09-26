@@ -5,12 +5,11 @@
 
 module Templates where
 
-import Control.Monad (forM_, when)
 
 import Text.Blaze.Internal         as I
 import Text.Blaze.Html5            as H
 import Text.Blaze.Html5.Attributes as A
-import Data.Dates.Types (DateTime(..), months, capitalize)
+import Data.Time (UTCTime)
 import Data.Time.Format (formatTime, defaultTimeLocale)
 import Data.Time.LocalTime (zonedTimeToUTC)
 
@@ -19,9 +18,8 @@ import Common
 import Config
 import qualified Data.Map.Strict as Map
 
-showDate :: DateTime -> String
-showDate (DateTime y m d _ _ _) = month <> " " <> show d <> ", " <> show y
-    where month = take 3 $ capitalize (months !! (m - 1))
+showDate :: UTCTime -> String
+showDate = formatTime defaultTimeLocale "%b %d, %_Y"
 
 loading :: AttributeValue -> Attribute
 loading = I.customAttribute "loading"
@@ -32,34 +30,16 @@ property = I.customAttribute "property"
 toLink :: FilePath -> Html -> Html
 toLink url = H.a ! A.href (fromString $ "/" <> url)
 
-
-renderIndex :: [Timestamped (String, FilePath)] -> Html -> Html
-renderIndex posts content = 
-    outer do
-        content
-        H.h2 "Latest notes"
-        H.ul ! A.id "pidx" $ forM_ posts \(Timestamped d (title, src)) ->
-            H.li do
-                H.span $ fromString $ showDate d
-                toLink src (fromString title)
-
-renderPost :: String -> FilePath -> Html -> Html
-renderPost title source content =
-    outerWith def { Config.title = fromString title } do
-        H.h1 $ fromString title
-        toLink source "View source"
-        content
-
-renderVisual :: Html -> [Timestamped FilePath] -> Html
+renderVisual :: Text -> [Timestamped FilePath] -> Html
 renderVisual txt imgs =
     outer do
-        txt
+        preEscapedText txt
         H.hr
         H.section $ forM_ imgs \ (Timestamped _ p) ->
             H.figure $ H.img ! A.src    (fromString p)
                              ! loading "lazy"
 
-renderProject :: Project -> [(String, FilePath)] -> Html -> Html
+renderProject :: Project -> [(String, FilePath)] -> Text -> Html
 renderProject (project@Project{title,..}) children content =
     outerWith def { Config.title       = fromString title
                   , Config.description = fromString subtitle
@@ -78,7 +58,7 @@ renderProject (project@Project{title,..}) children content =
         when (length children > 0) $
             H.ol ! A.class_ "pages" $ forM_ children \(t,l) ->
                 H.li $ H.a ! A.href (fromString l) $ (fromString t)
-        content
+        preEscapedText content
 
 renderReadings :: [Book] -> Html
 renderReadings books =
@@ -98,10 +78,10 @@ renderReadings books =
                                    $ zonedTimeToUTC d
                         Nothing -> "·"
 
-renderProjects :: Html -> [(Project, FilePath)] -> Html
+renderProjects :: Text -> [(Project, FilePath)] -> Html
 renderProjects txt paths =
     outer do
-        txt
+        preEscapedText txt
         H.ul ! A.class_ "projects" $ do
             forM_ paths \(Project {title,..}, link) -> H.li $ H.a ! A.href (fromString link) $ do
                 H.div $ H.img ! A.src (fromString $ link </> "logo.svg")
@@ -126,20 +106,20 @@ outerWith SiteConfig{title,..} content = H.docTypeHtml do
         H.meta ! A.name "robots" ! A.content "index, follow"
         H.meta ! charset "utf-8"
         H.link ! A.rel "stylesheet" ! A.href "/assets/theme.css"
-
-        -- OpenGraph
+        H.link ! A.rel   "shortcut icon"
+               ! A.type_ "image/svg"
+               ! A.href  "/assets/favicon.svg"
+        H.link ! A.rel   "alternate"
+               ! A.type_ "application/atom+xml"
+               ! A.href  "/atom.xml"
         H.meta ! property "og:title"
                ! A.content (textValue title)
-
         H.meta ! property "og:type"
                ! A.content "website"
-
         H.meta ! property "og:image"
                ! A.content (textValue image)
-
         H.meta ! property "og:description"
                ! A.content (textValue description)
-
         H.title $ toHtml title
 
     H.body do
@@ -150,6 +130,7 @@ outerWith SiteConfig{title,..} content = H.docTypeHtml do
                 H.a ! A.href "/visual.html"   $ "Visual"
                 H.a ! A.href "/readings.html" $ "Readings"
                 H.a ! A.href "/quid.html"     $ "Quid"
+                H.a ! A.href "/atom.xml"      $ "Feed"
 
         H.main content
 
@@ -158,4 +139,6 @@ outerWith SiteConfig{title,..} content = H.docTypeHtml do
             H.a ! A.href "https://creativecommons.org/licenses/by-nc/2.0/" $ "CC BY-NC 2.0"
             " · "
             H.a ! A.href "https://instagram.com/ba.bou.m/" $ "instagram"
+            " · "
+            H.a ! A.href "/atom.xml" $ "feed"
 

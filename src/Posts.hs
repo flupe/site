@@ -1,39 +1,112 @@
-{-# LANGUAGE DuplicateRecordFields    #-}
-{-# LANGUAGE DisambiguateRecordFields #-}
-{-# LANGUAGE NamedFieldPuns           #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Posts (build) where
 
-import Data.Maybe (fromMaybe, mapMaybe)
+import Text.Blaze.Internal         as I
+import Text.Blaze.Html5            as H
+import Text.Blaze.Html5.Attributes as A
+import Data.Aeson.Types (FromJSON)
+import Data.Binary      (Binary, put, get)
+import Data.Time        (UTCTime, defaultTimeLocale)
+import Data.Time.Clock  (getCurrentTime)
+import Data.Time.Format (rfc822DateFormat, formatTime)
+import GHC.Generics
+
+import Text.Atom.Feed   as Atom
+import Text.Feed.Types  (Feed(..))
+import Text.Feed.Export (textFeed)
 
 import Common
-import Page
-import Config
+import Config (ropts, wopts)
+import qualified Config
 import Templates
 
+--  metadata used for parsing YAML headers
+data PostMeta = PostMeta
+    { title       :: Text
+    , draft       :: Maybe Bool
+    , description :: Maybe Text
+    } deriving (Generic, Eq, Show)
+
+data Post = Post
+    { postTitle       :: Text
+    , postDate        :: UTCTime
+    , postDraft       :: Bool
+    , postDescription :: Maybe Text
+    , postContent     :: Text
+    , postPath        :: FilePath
+    } deriving (Generic, Eq, Show)
+
+instance FromJSON PostMeta
+instance IsTimestamped Post where timestamp = postDate
+instance Binary Post where
+    put (Post t d dr desc content path) =
+        put t >> put d >> put dr >> put desc >> put content >> put path
+    get = Post <$> get <*> get <*> get <*> get <*> get <*> get
+
+
+buildPost :: Recipe IO FilePath Post
+buildPost = do
+    src <- copyFile
+    (PostMeta title draft desc, pandoc) <- readPandocMetadataWith ropts
+    content <- renderPandocWith wopts pandoc
+
+    pure (renderPost title src content)
+        >>= saveFileAs (-<.> "html")
+        <&> Post title (timestamp src) (fromMaybe False draft) Nothing content
+
+toDate :: UTCTime -> String
+toDate = formatTime defaultTimeLocale rfc822DateFormat
 
 build :: Task IO ()
 build = do
-    posts <- reverse <$> sort <$> match "posts/*" do
-        src <- copyFile
-        (Page title d, pdc) <- readPandocMetadataWith ropts
+    posts <- match "posts/*" buildPost
+             <&> filter (not . postDraft)
+             <&> recentFirst
 
-        renderPandocWith wopts pdc
-            <&> renderPost title src
-            >>= saveFileAs (-<.> "html")
-            <&> (d,) . (title,)
-            <&> timestampedWith (timestamp . snd . snd)
-
-    let visible = mapMaybe
-            (\(Timestamped d (dr, p)) ->
-                 if fromMaybe False dr then Nothing
-                                       else Just $ Timestamped d p) posts
-
-    watch visible $ match_ "index.rst" do
-        -- render index
+    watch posts $ match_ "index.rst" do
         compilePandoc
-            <&> renderIndex visible
+            <&> renderIndex posts
             >>= saveFileAs (-<.> "html")
 
-        -- build atom feed
-        --
+        now <- liftIO getCurrentTime
+        let (Just feed) = textFeed (AtomFeed $ postsToFeed now posts)
+        write "atom.xml" feed
+
+    where
+        postsToFeed now posts =
+            ( Atom.nullFeed
+                "https://acatalepsie.fr/atom.xml"
+                (Atom.TextString "acatalepsie")
+                "2017-08-01")
+            { Atom.feedEntries = postToEntry <$> posts
+            , Atom.feedUpdated = fromString $ toDate now
+            }
+
+        postToEntry :: Post -> Atom.Entry
+        postToEntry post =
+            ( Atom.nullEntry (fromString $ postPath post)
+                             (Atom.TextString $ postTitle post)
+                             (fromString $ toDate $ postDate post))
+            { Atom.entryContent = Just $ Atom.HTMLContent $ postContent post
+            , Atom.entrySummary = Atom.HTMLString <$> postDescription post
+            }
+
+
+renderPost :: Text -> FilePath -> Text -> Html
+renderPost title source content =
+    outerWith def { Config.title = title } do
+        H.h1 $ toHtml title
+        toLink source "View source"
+        preEscapedText content
+
+
+renderIndex :: [Post] -> Text -> Html
+renderIndex posts content = 
+    outer do
+        preEscapedText content
+        H.h2 "Latest posts"
+        H.ul ! A.id "pidx" $ forM_ posts \post ->
+            H.li do
+                H.span $ fromString $ showDate (postDate post)
+                toLink (postPath post) (toHtml $ postTitle post)

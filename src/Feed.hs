@@ -7,13 +7,13 @@
 
 module Feed where
 
-import Data.String (fromString)
 import Data.Text hiding (map)
 import Data.XML.Types as XML
 import qualified Data.Text.Lazy as Lazy
-import qualified Text.Atom.Feed as Atom
+import Text.Atom.Feed as Atom
 import qualified Text.Atom.Feed.Export as Export (textFeed)
 
+import Common
 import Types
 
 class Reifiable a where
@@ -22,13 +22,6 @@ class Reifiable a where
 instance Reifiable Project where
     toEntry :: Project -> Atom.Entry
     toEntry (Project {title, subtitle}) =
-        ( Atom.nullEntry
-            "https://acatalepsie.fr/"
-            (Atom.TextString $ fromString title)
-            "2020-09-02"
-        )
-        { Atom.entryContent = Just (Atom.TextContent $ fromString subtitle)
-        }
 
 toFeed :: Reifiable a => [a] -> Atom.Feed
 toFeed items =

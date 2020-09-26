@@ -1,0 +1,9 @@
+<svg width="16" height="16" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    circle { stroke: #000000; fill: none; stroke-width: 2 }
+    @media (prefers-color-scheme: dark) {
+      circle { stroke: #ffffff; }
+    }
+  </style>
+  <circle cx="8" cy="8" r="5" />
+</svg>

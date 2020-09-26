@@ -2,6 +2,7 @@ module Projects (build) where
 
 import Data.Char        (digitToInt)
 
+import Text.Blaze
 import Common
 import Types
 import Page
@@ -38,6 +39,7 @@ buildProject = do
             let (key, file) = getKey $ takeFileName filepath
             (TitledPage title _, doc) <- readPandocMetadataWith ropts
             renderPandocWith wopts doc
+                <&> preEscapedText
                 <&> outerWith (def {Config.title = fromString title})
                 >>= saveFileAs (const $ file -<.> "html")
                 <&> (title,)
