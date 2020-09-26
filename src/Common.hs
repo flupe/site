@@ -5,10 +5,10 @@ module Common
     , module System.FilePath
     , module Achille
     , module Achille.Recipe.Pandoc
-    , module Text.Blaze.Html
     , module Data.Text
     , module Control.Monad
     , module Data.Maybe
+    , module Lucid
     ) where
 
 import Achille
@@ -21,4 +21,4 @@ import Data.String     (fromString)
 import Data.Text       (Text)
 import Data.Maybe      (fromMaybe, mapMaybe)
 import System.FilePath
-import Text.Blaze.Html (Html)
+import Lucid           (Html)

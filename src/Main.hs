@@ -1,7 +1,7 @@
 module Main where
 
 import qualified Data.Yaml as Yaml
-import Text.Blaze
+import Lucid
 
 import Common
 import Templates
@@ -19,7 +19,7 @@ main = achilleWith config do
     -- quid page
     match_ "./quid.rst" $
         compilePandoc 
-        <&> preEscapedText
+        <&> toHtmlRaw
         <&> outerWith def {Config.title = "quid"}
         >>= saveFileAs (-<.> "html")
 

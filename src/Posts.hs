@@ -2,15 +2,13 @@
 
 module Posts (build) where
 
-import Text.Blaze.Internal         as I
-import Text.Blaze.Html5            as H
-import Text.Blaze.Html5.Attributes as A
 import Data.Aeson.Types (FromJSON)
 import Data.Binary      (Binary, put, get)
 import Data.Time        (UTCTime, defaultTimeLocale)
 import Data.Time.Clock  (getCurrentTime)
 import Data.Time.Format (rfc822DateFormat, formatTime)
 import GHC.Generics
+import Lucid
 
 import Text.Atom.Feed   as Atom
 import Text.Feed.Types  (Feed(..))
@@ -93,20 +91,20 @@ build = do
             }
 
 
-renderPost :: Text -> FilePath -> Text -> Html
+renderPost :: Text -> FilePath -> Text -> Html ()
 renderPost title source content =
     outerWith def { Config.title = title } do
-        H.h1 $ toHtml title
+        h1_ $ toHtml title
         toLink source "View source"
-        preEscapedText content
+        toHtmlRaw content
 
 
-renderIndex :: [Post] -> Text -> Html
+renderIndex :: [Post] -> Text -> Html ()
 renderIndex posts content = 
     outer do
-        preEscapedText content
-        H.h2 "Latest posts"
-        H.ul ! A.id "pidx" $ forM_ posts \post ->
-            H.li do
-                H.span $ fromString $ showDate (postDate post)
+        toHtmlRaw content
+        h2_ "Latest posts"
+        ul_ [ id_ "pidx" ] $ forM_ posts \post ->
+            li_ do
+                span_ $ fromString $ showDate (postDate post)
                 toLink (postPath post) (toHtml $ postTitle post)

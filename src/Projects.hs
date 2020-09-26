@@ -2,12 +2,12 @@ module Projects (build) where
 
 import Data.Char        (digitToInt)
 
-import Text.Blaze
 import Common
 import Types
 import Page
 import Config
 import Templates
+import Lucid
 
 
 getKey :: String -> (Int, String)
@@ -39,7 +39,7 @@ buildProject = do
             let (key, file) = getKey $ takeFileName filepath
             (TitledPage title _, doc) <- readPandocMetadataWith ropts
             renderPandocWith wopts doc
-                <&> preEscapedText
+                <&> toHtmlRaw
                 <&> outerWith (def {Config.title = fromString title})
                 >>= saveFileAs (const $ file -<.> "html")
                 <&> (title,)
