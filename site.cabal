@@ -10,7 +10,6 @@ executable site
   hs-source-dirs:      src
   other-modules:       Templates
                      , Types
-                     , Page
                      , Posts
                      , Projects
                      , Common

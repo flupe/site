@@ -5,10 +5,11 @@ import Lucid
 
 import Common
 import Templates
+import Config (config, ropts, wopts, SiteConfig(title))
+
 import qualified Posts
 import qualified Projects
 import qualified Visual
-import Config (config, ropts, wopts, SiteConfig(title))
 
 
 main :: IO ()

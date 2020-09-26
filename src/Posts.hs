@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveGeneric #-}
-
 module Posts (build) where
 
 import Data.Aeson.Types (FromJSON)
@@ -24,7 +22,7 @@ data PostMeta = PostMeta
     { title       :: Text
     , draft       :: Maybe Bool
     , description :: Maybe Text
-    } deriving (Generic, Eq, Show)
+    } deriving (Generic, Eq, Show, FromJSON)
 
 data Post = Post
     { postTitle       :: Text
@@ -33,14 +31,9 @@ data Post = Post
     , postDescription :: Maybe Text
     , postContent     :: Text
     , postPath        :: FilePath
-    } deriving (Generic, Eq, Show)
+    } deriving (Generic, Eq, Show, Binary)
 
-instance FromJSON PostMeta
 instance IsTimestamped Post where timestamp = postDate
-instance Binary Post where
-    put (Post t d dr desc content path) =
-        put t >> put d >> put dr >> put desc >> put content >> put path
-    get = Post <$> get <*> get <*> get <*> get <*> get <*> get
 
 
 buildPost :: Recipe IO FilePath Post

@@ -4,7 +4,6 @@ import Data.Char        (digitToInt)
 
 import Common
 import Types
-import Page
 import Config
 import Templates
 import Lucid
