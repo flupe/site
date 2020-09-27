@@ -1,5 +1,10 @@
 my personal website, made with [achille](https://acatalepsie.fr/projects/achille).
 
+```
+nix-shell --attr env release.nix
+nix-env -if release.nix
+```
+
 ## todo
 
 - dark theme

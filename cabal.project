@@ -1,6 +1,0 @@
-packages:
-  ./
-  ../achille
-
-package site
-  optimization: True
