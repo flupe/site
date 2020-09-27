@@ -16,6 +16,7 @@ executable site
                      , Config
                      , Visual
                      , Templates
+                     , Readings
   build-depends:       base >=4.12 && <4.13
                      , filepath
                      , achille
@@ -25,7 +26,6 @@ executable site
                      , text
                      , bytestring
                      , filepath
-                     , frontmatter
                      , aeson
                      , yaml
                      , binary
@@ -34,13 +34,14 @@ executable site
                      , feed
                      , time
                      , lucid
-                     , binary-instances
   extensions:          BlockArguments
                      , TupleSections
                      , OverloadedStrings
                      , ScopedTypeVariables
                      , DeriveGeneric
                      , DeriveAnyClass
+                     , RecordWildCards
+                     , NamedFieldPuns
   ghc-options:       -threaded
                      -j8
                      -O2

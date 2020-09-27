@@ -1,6 +1,5 @@
 module Main where
 
-import qualified Data.Yaml as Yaml
 import Lucid
 
 import Common
@@ -10,6 +9,7 @@ import Config (config, ropts, wopts, SiteConfig(title))
 import qualified Posts
 import qualified Projects
 import qualified Visual
+import qualified Readings
 
 
 main :: IO ()
@@ -27,9 +27,4 @@ main = achilleWith config do
     Visual.build
     Projects.build
     Posts.build
-
-    -- reading list
-    matchFile "readings.yaml" $ readBS
-        >>= (liftIO . Yaml.decodeThrow)
-        <&> renderReadings
-        >>= saveFileAs (-<.> "html")
+    Readings.build

@@ -21,6 +21,7 @@ of our markdown files:
 
 ```haskell
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAny #-}
 
 import GHC.Generics
 import Data.Aeson
@@ -28,9 +29,7 @@ import Data.Text (Text)
 
 data Meta = Meta
   { title :: Text
-  } deriving (Generic)
-
-instance FromJSON Meta
+  } deriving (Generic, FromJSON)
 ```
 
 This way we enfore correct metadata when retrieving the content of our files.
@@ -39,7 +38,7 @@ generator to proceed:
 
 ```markdown
 ---
-title: Something about efficiency
+title: My first blogpost!
 ---
 ```
 
@@ -51,17 +50,17 @@ Then we create a generic template for displaying a page, thanks to lucid:
 
 import Lucid.Html5
 
-renderPost :: Text -> Text -> Html a
+renderPost :: Text -> Text -> Html ()
 renderPost title content = wrapContent do
   h1_ $ toHtml title
   toHtmlRaw content
 
-renderIndex :: [(Text, FilePath)] -> Html a
+renderIndex :: [(Text, FilePath)] -> Html ()
 renderIndex = wrapContent .
   ul_ . mconcat . map \(title, path) ->
     li_ $ a_ [href_ path] $ toHtml title
 
-wrapContent :: Html a -> Html a
+wrapContent :: Html () -> Html ()
 wrapContent content = doctypehtml_ do
     head_ do
         meta_ [charset_ "utf-8"]

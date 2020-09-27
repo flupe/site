@@ -4,7 +4,7 @@ description: Where I setup an Atom feed
 ---
 
 I stumbled upon Matt Webb's `About Feeds <https://aboutfeeds.com/>`_ and
-realized I've been missing out on the power of web syndication for quite some
+realized I had been missing out on the power of web syndication for quite some
 time. Turns out most sites still make their feed available in one way or
 another. This allows anyone to subscribe to the content they are interested in
 without having to rely on a centralized platform. No more checking out one's

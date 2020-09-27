@@ -1,3 +1,5 @@
+my personal website, made with [achille](https://acatalepsie.fr/projects/achille).
+
 ## todo
 
 - dark theme
