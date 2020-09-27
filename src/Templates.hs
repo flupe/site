@@ -39,14 +39,6 @@ property_ = makeAttribute "property"
 toLink :: FilePath -> Html () -> Html ()
 toLink url = a_ [ href_ (fromString $ "/" <> url) ]
 
-renderVisual :: Text -> [Timestamped FilePath] -> Html ()
-renderVisual txt imgs =
-    outer do
-        toHtmlRaw txt
-        hr_ []
-        section_ $ forM_ imgs \ (Timestamped _ p) ->
-            figure_ $ img_ [ src_ (fromString p), loading_ "lazy" ]
-
 renderProject :: Project -> [(String, FilePath)] -> Text -> Html ()
 renderProject (project@Project{title,..}) children content =
     outerWith def { Config.title       = fromString title
@@ -149,4 +141,3 @@ outerWith SiteConfig{title,..} content = doctypehtml_ do
             a_ [ href_ "https://instagram.com/ba.bou.m/" ] "instagram"
             " · "
             a_ [ href_ "/atom.xml" ] "feed"
-
