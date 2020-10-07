@@ -21,36 +21,35 @@ build :: Task IO ()
 build = do
     projects <- matchDir "projects/*/" buildProject
 
-    watch projects $ match_ "./projects.rst" do
-        intro <- compilePandocWith def wopts
+    watch projects $ match_ "./projects.rst" \src -> do
+        intro <- compilePandocWith def wopts src
         write "projects.html" (renderIndex intro projects)
 
 
-buildProject :: Recipe IO a (Project, FilePath)
-buildProject = do
+buildProject :: FilePath -> Task IO (Project, FilePath)
+buildProject src = do
     match "*" copyFile
 
     name     <- takeBaseName <$> getCurrentDir
     children <- buildChildren name
 
-    watch children $ matchFile "index.*" do
-        (meta, doc) <- readPandocMetadataWith ropts
+    watch children $ matchFile "index.*" \src -> do
+        (meta, doc) <- readPandocMetadataWith ropts src
 
         renderPandocWith wopts doc
             <&> renderProject meta children
-            >>= saveFileAs (-<.> "html")
+            >>= write (src -<.> "html")
 
         (meta,) <$> getCurrentDir
     where
-        buildChildren :: String -> Recipe IO a [(Text, FilePath)]
-        buildChildren name = match "pages/*" do
-            filepath <- getInput
+        buildChildren :: String -> Task IO [(Text, FilePath)]
+        buildChildren name = match "pages/*" \filepath -> do
             let (key, file) = getKey $ takeFileName filepath
-            (TitledPage title _, doc) <- readPandocMetadataWith ropts
+            (TitledPage title _, doc) <- readPandocMetadataWith ropts filepath
             renderPandocWith wopts doc
                 <&> toHtmlRaw
                 <&> outerWith (def {Config.title = title})
-                >>= saveFileAs (const $ file -<.> "html")
+                >>= write (filepath -<.> "html")
                 <&> (title,)
 
 

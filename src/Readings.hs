@@ -14,12 +14,12 @@ data Book = Book
     } deriving (Generic, Show, FromJSON)
 
 
-build :: Recipe IO () FilePath
-build = matchFile "readings.yaml" $
-    readBS
+build :: Task IO FilePath
+build = matchFile "readings.yaml" \p ->
+    readBS p
         >>= (liftIO . Yaml.decodeThrow)
         <&> renderReadings
-        >>= saveFileAs (-<.> "html")
+        >>= write (p -<.> "html")
 
 
 renderReadings :: [Book] -> Html ()

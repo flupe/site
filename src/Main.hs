@@ -27,7 +27,7 @@ data Cmd
 
 
 cli :: Parser Cmd
-cli = subparser $
+cli = hsubparser $
       command "build"  (info (Build <$> switch (long "draft" <> short 'D' <> help "Display drafts"))
                              (progDesc "Build the site once" ))
    <> command "deploy" (info (pure Deploy) (progDesc "Server go brrr"      ))
@@ -53,11 +53,11 @@ build showDrafts = do
     match_ "assets/*" copyFile
 
     -- quid page
-    match_ "./quid.rst" $
-        compilePandoc 
+    match_ "./quid.rst" \src ->
+        compilePandoc src
         <&> toHtmlRaw
         <&> outerWith def {Config.title = "quid"}
-        >>= saveFileAs (-<.> "html")
+        >>= write (src -<.> "html")
 
     Visual.build
     Projects.build

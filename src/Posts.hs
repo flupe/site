@@ -36,14 +36,14 @@ data Post = Post
 instance IsTimestamped Post where timestamp = postDate
 
 
-buildPost :: Recipe IO FilePath Post
-buildPost = do
-    src <- copyFile
-    (PostMeta title draft desc, pandoc) <- readPandocMetadataWith ropts
+buildPost :: FilePath -> Task IO Post
+buildPost src = do
+    copyFile src
+    (PostMeta title draft desc, pandoc) <- readPandocMetadataWith ropts src
     content <- renderPandocWith wopts pandoc
 
     pure (renderPost title src content)
-        >>= saveFileAs (-<.> "html")
+        >>= write (src -<.> "html")
         <&> Post title (timestamp src) (fromMaybe False draft) Nothing content
 
 toDate :: UTCTime -> String
@@ -55,10 +55,10 @@ build showDrafts = do
              <&> filter (\p -> not (postDraft p) || showDrafts)
              <&> recentFirst
 
-    watch posts $ match_ "index.rst" do
-        compilePandoc
+    watch posts $ match_ "index.rst" \src -> do
+        compilePandoc src
             <&> renderIndex posts
-            >>= saveFileAs (-<.> "html")
+            >>= write (src -<.> "html")
 
         now <- liftIO getCurrentTime
         let (Just feed) = textFeed (AtomFeed $ postsToFeed now posts)

@@ -7,14 +7,16 @@ import Lucid
 
 build :: Task IO ()
 build = do
-    pictures <- match "visual/*" do
-      copyFile
-      runCommandWith (-<.> "thumb.png")
-                     (\a b -> "convert -resize 740x " <> a <> " " <> b)
-          <&> timestamped
+    pictures <- match "visual/*" \src -> do
+      copyFile src
+      callCommandWith
+         (\a b -> "convert -resize 740x " <> a <> " " <> b)
+         (-<.> "thumb.png")
+         src
+      <&> timestamped
 
-    watch pictures $ match_ "./visual.rst" do
-        intro <- compilePandoc
+    watch pictures $ match_ "./visual.rst" \src -> do
+        intro <- compilePandoc src
         write "visual.html" $ renderVisual intro (recentFirst pictures)
 
 renderVisual :: Text -> [Timestamped FilePath] -> Html ()

@@ -4,7 +4,7 @@ module Common
     , module Data.String
     , module System.FilePath
     , module Achille
-    , module Achille.Recipe.Pandoc
+    , module Achille.Task.Pandoc
     , module Data.Text
     , module Control.Monad
     , module Data.Maybe
@@ -15,7 +15,7 @@ module Common
     ) where
 
 import Achille
-import Achille.Recipe.Pandoc
+import Achille.Task.Pandoc
 
 import Data.Aeson.Types (FromJSON)
 import GHC.Generics     (Generic)
