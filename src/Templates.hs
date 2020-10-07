@@ -76,7 +76,6 @@ outerWith SiteConfig{title,..} content = doctypehtml_ do
                 a_ [ href_ "/visual.html"   ] "Visual"
                 a_ [ href_ "/readings.html" ] "Readings"
                 a_ [ href_ "/quid.html"     ] "Quid"
-                a_ [ href_ "/atom.xml"      ] "Feed"
 
         main_ content
 

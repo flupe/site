@@ -63,4 +63,3 @@ build showDrafts = do
     Projects.build
     Posts.build showDrafts
     Readings.build
-
