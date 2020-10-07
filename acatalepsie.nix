@@ -1,6 +1,7 @@
 { mkDerivation, achille, aeson, base, binary, bytestring
-, containers, data-default, feed, filepath, lucid, pandoc
-, pandoc-types, sort, stdenv, text, time, yaml
+, containers, data-default, directory, feed, filepath, lucid
+, optparse-applicative, pandoc, pandoc-types, process, sort, stdenv
+, text, time, yaml
 }:
 mkDerivation {
   pname = "site";
@@ -9,8 +10,9 @@ mkDerivation {
   isLibrary = false;
   isExecutable = true;
   executableHaskellDepends = [
-    achille aeson base binary bytestring containers data-default feed
-    filepath lucid pandoc pandoc-types sort text time yaml
+    achille aeson base binary bytestring containers data-default
+    directory feed filepath lucid optparse-applicative pandoc
+    pandoc-types process sort text time yaml
   ];
   license = "unknown";
   hydraPlatforms = stdenv.lib.platforms.none;

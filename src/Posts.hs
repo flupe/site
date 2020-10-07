@@ -49,10 +49,10 @@ buildPost = do
 toDate :: UTCTime -> String
 toDate = formatTime defaultTimeLocale rfc822DateFormat
 
-build :: Task IO ()
-build = do
+build :: Bool -> Task IO ()
+build showDrafts = do
     posts <- match "posts/*" buildPost
-             <&> filter (not . postDraft)
+             <&> filter (\p -> not (postDraft p) || showDrafts)
              <&> recentFirst
 
     watch posts $ match_ "index.rst" do

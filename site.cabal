@@ -34,6 +34,9 @@ executable site
                      , feed
                      , time
                      , lucid
+                     , optparse-applicative
+                     , process
+                     , directory
   extensions:          BlockArguments
                      , TupleSections
                      , OverloadedStrings
