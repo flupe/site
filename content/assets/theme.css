@@ -283,8 +283,18 @@ ol.pages li a {
   padding: 0 1em;
 }
 
+section.visual {
+  display: grid;
+  grid-gap: 1em;
+  align-items: center;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+section.visual figure { margin: 0 }
 figure img {
   max-width: 100%;
+  height: auto;
+  /* aspect-ratio: attr(width) / attr(height); */
   vertical-align: top;
 }
 
